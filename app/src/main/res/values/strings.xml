@@ -1,0 +1,25 @@
+<resources>
+    <string name="app_name" translatable="false">Grandpa Caller</string>
+
+    <string name="next">Next Step</string>
+    <string name="channel_name">notification</string>
+    <string name="channel_description">To keep connection in the background</string>
+    <string name="back">back</string>
+    <string name="preparations">Preparations</string>
+    <string name="notif_permission">Grant Post Notification Permission</string>
+    <string name="notif_permission_desc">To keep app running in the background, a notification must be posted</string>
+    <string name="read_log_permission" translatable="false">Grant Read Call log Permission</string>
+    <string name="read_log_permission_desc" translatable="false">To read recent calls</string>
+    <string name="read_state_permission" translatable="false">Grant Read Phone state Permission</string>
+    <string name="read_state_permission_desc" translatable="false">To read when receive calls</string>
+    <string name="make_call_permission" translatable="false">Grant Make Call Permission</string>
+    <string name="make_call_permission_desc" translatable="false">To make calls</string>
+    <string name="write_log_permission" translatable="false">Grant Write Call log Permission</string>
+    <string name="write_log_permission_desc" translatable="false">To write recent calls</string>
+    <string name="write_contact_permission" translatable="false">Grant Write Contact Permission</string>
+    <string name="write_contact_permission_desc" translatable="false">To add contacts</string>
+    <string name="read_contact_permission" translatable="false">Grant Read Contact Permission</string>
+    <string name="read_contact_permission_desc" translatable="false">To read contacts</string>
+    <string name="title_activity_call">CallActivity</string>
+    <string name="title_activity_edt_contact">EdtContactActivity</string>
+</resources>

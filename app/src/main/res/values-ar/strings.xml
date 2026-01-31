@@ -1,0 +1,10 @@
+<resources>
+    <string name="next"> الخطوة التالية </string>
+    <string name="channel_name"> إعلام </string>
+    <string name="channel_description"> يعرض بعض الوقت الأخبار </string>
+    <string name="back"> back </string>
+    فقط
+    <string name="preparations">التحضيرات</string>
+    <string name="notif_permission">Grant Post Notification Permission</string>
+    <string name="notif_permission_desc">To keep connection to other device when Airlink is transferring files in the background, a notification must be posted</string>
+</resources>

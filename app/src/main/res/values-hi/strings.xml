@@ -1,0 +1,9 @@
+<resources>
+    <string name="next">अगला चरण</string>string
+    <string name="channel_name">सूचना</string>
+    <string name="channel_description"> कभी-कभी यह समाचार दिखाता है</string>
+    <string name="back">पीछे</string>
+    <string name="preparations">Preparations</string>
+    <string name="notif_permission">Grant Post Notification Permission</string>
+    <string name="notif_permission_desc">To keep connection to other device when Airlink is transferring files in the background, a notification must be posted</string>
+</resources>

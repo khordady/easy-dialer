@@ -1,0 +1,8 @@
+<resources>
+    <!-- Default screen margins, per the Android Design guidelines. -->
+
+    <dimen name="little_go">30dp</dimen>
+    <dimen name="permission_lock">35dp</dimen>
+    <dimen name="permission_ico">25dp</dimen>
+    <!-- Default screen margins, per the Android Design guidelines. -->
+</resources>

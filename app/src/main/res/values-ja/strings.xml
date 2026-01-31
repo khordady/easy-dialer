@@ -1,0 +1,9 @@
+<resources>
+    <string name="next">次のステップ</string>
+    <string name="channel_name">通知</string>
+    <string name="channel_description">ニュースが表示される場合があります</string>
+    <string name="back">戻る</string>
+    <string name="preparations">準備</string>
+    <string name="notif_permission">Grant Post Notification Permission</string>
+    <string name="notif_permission_desc">To keep connection to other device when Airlink is transferring files in the background, a notification must be posted</string>
+</resources>
