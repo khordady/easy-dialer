@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name" translatable="false">Grandpa Caller</string>
+    <string name="app_name" translatable="false">Easy Dialer</string>
 
     <string name="next">Next Step</string>
     <string name="channel_name">notification</string>
@@ -20,6 +20,4 @@
     <string name="write_contact_permission_desc" translatable="false">To add contacts</string>
     <string name="read_contact_permission" translatable="false">Grant Read Contact Permission</string>
     <string name="read_contact_permission_desc" translatable="false">To read contacts</string>
-    <string name="title_activity_call">CallActivity</string>
-    <string name="title_activity_edt_contact">EdtContactActivity</string>
 </resources>

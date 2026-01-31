@@ -25,5 +25,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "Grandpa Caller"
+rootProject.name = "Easy Dialer"
 include(":app")

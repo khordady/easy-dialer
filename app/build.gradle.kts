@@ -4,13 +4,13 @@ plugins {
 }
 
 android {
-    namespace = "app.arteh.grandpacaller"
+    namespace = "app.arteh.easydialer"
     compileSdk {
         version = release(36)
     }
 
     defaultConfig {
-        applicationId = "app.arteh.grandpacaller"
+        applicationId = "app.arteh.easydialer"
         minSdk = 29
         targetSdk = 36
         versionCode = 1
