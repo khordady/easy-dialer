@@ -2,10 +2,16 @@ package app.arteh.easydialer.contacts
 
 import android.content.Context
 import android.provider.ContactsContract
+import androidx.core.net.toUri
+import app.arteh.easydialer.contacts.edit.models.ContactPhone
+import app.arteh.easydialer.contacts.edit.models.EditableContact
 import app.arteh.easydialer.contacts.show.Contact
+import app.arteh.easydialer.contacts.speed.PreferencesManager
+import app.arteh.easydialer.contacts.speed.SpeedDialEntry
 
 class ContactRP {
     var contactMList = mutableListOf<Contact>()
+    lateinit var speedDialMap: Map<Int, SpeedDialEntry>
     var lazyKey = 0
 
     fun loadContacts(context: Context) {
@@ -17,35 +23,36 @@ class ContactRP {
             ContactsContract.CommonDataKinds.Phone.CONTACT_ID,
             ContactsContract.Contacts.DISPLAY_NAME,
             ContactsContract.CommonDataKinds.Phone.NUMBER,
-            ContactsContract.CommonDataKinds.Phone.CONTACT_LAST_UPDATED_TIMESTAMP
+            ContactsContract.CommonDataKinds.Phone.CONTACT_LAST_UPDATED_TIMESTAMP,
+            ContactsContract.PhoneLookup.PHOTO_THUMBNAIL_URI,
+
+            ContactsContract.RawContacts.ACCOUNT_NAME
         )
 
         val cursor = cr.query(
             ContactsContract.CommonDataKinds.Phone.CONTENT_URI, columns, null, null,
-            ContactsContract.Contacts.DISPLAY_NAME + "," + ContactsContract.CommonDataKinds.Phone.NUMBER
+            ContactsContract.CommonDataKinds.Phone.CONTACT_ID
         )
 
-        if (cursor != null) {
+        if (cursor != null)
             try {
-                val nameIndex =
-                    cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME)
-                val numberIndex =
-                    cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER)
-                val dateIndex =
-                    cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.CONTACT_LAST_UPDATED_TIMESTAMP)
-
                 while (cursor.moveToNext()) {
-                    val name = cursor.getString(nameIndex)
-                    val number = cursor.getString(numberIndex).replace(" ", "")
-                    val date = cursor.getLong(dateIndex)
+                    val type = cursor.getString(5)
+                    if (type != null && type.contains("sim", true))
+                        continue
 
-                    val contact = Contact(name, number, date, lazyKey++)
+                    val id = cursor.getLong(0)
+                    val name = cursor.getString(1)
+                    val number = cursor.getString(2).replace(" ", "")
+                    val date = cursor.getLong(3)
+                    val photoURI = cursor.getString(4)?.toUri()
+
+                    val contact = Contact(id, name, number, date, photoURI, lazyKey++)
                     contactMList.add(contact)
                 }
             } finally {
                 cursor.close()
             }
-        }
 
         //find and delete repeated phone
         var count = contactMList.size
@@ -59,6 +66,83 @@ class ContactRP {
                 }
             j++
         }
+    }
+
+    fun findContactByID(context: Context, id: Long): EditableContact {
+        val cr = context.contentResolver
+        var contact = EditableContact()
+
+        val columns: Array<String> = arrayOf(
+            ContactsContract.CommonDataKinds.Phone.CONTACT_ID,
+            ContactsContract.CommonDataKinds.Phone.RAW_CONTACT_ID,
+
+            // Full display name
+            ContactsContract.Contacts.DISPLAY_NAME,
+
+            // Structured name parts
+            ContactsContract.CommonDataKinds.StructuredName.GIVEN_NAME,
+            ContactsContract.CommonDataKinds.StructuredName.FAMILY_NAME,
+
+            // Phone info
+            ContactsContract.CommonDataKinds.Phone._ID,
+            ContactsContract.CommonDataKinds.Phone.NUMBER,
+            ContactsContract.CommonDataKinds.Phone.TYPE,
+
+            ContactsContract.PhoneLookup.PHOTO_URI
+        )
+
+        val columnID = ContactsContract.CommonDataKinds.Phone.CONTACT_ID
+
+        val cursor = cr.query(
+            ContactsContract.CommonDataKinds.Phone.CONTENT_URI, columns,
+            "$columnID = ?", arrayOf(id.toString()), null
+        )
+
+        if (cursor != null)
+            try {
+                val phoneList = mutableListOf<ContactPhone>()
+                var flag = false
+
+                while (cursor.moveToNext()) {
+                    val phoneID = cursor.getLong(5)
+                    val number = cursor.getString(6).replace(" ", "")
+                    val numberType = cursor.getInt(7)
+
+                    if (!flag) {
+                        flag = true
+                        val contactID = cursor.getLong(0)
+                        val rawContactID = cursor.getLong(1)
+
+                        val fullName = cursor.getString(2)
+                        val firstName = cursor.getString(3) ?: ""
+                        val lastName = cursor.getString(4) ?: ""
+
+                        val photoURI = cursor.getString(8)?.toUri()
+
+                        phoneList.add(ContactPhone(phoneID, number, numberType))
+
+                        contact = EditableContact(
+                            contactID, rawContactID,
+                            firstName, lastName, fullName,
+                            phoneList.toList(),
+                            photoURI
+                        )
+                    }
+                    else if (phoneList.indexOfFirst { it.number == number } == -1)
+                        phoneList.add(ContactPhone(phoneID, number, numberType))
+                }
+
+                contact = contact.copy(phones = phoneList)
+
+            } finally {
+                cursor.close()
+            }
+
+        return contact
+    }
+
+    suspend fun loadSpeedDialMap(context: Context) {
+        speedDialMap = PreferencesManager(context).loadSpeedDIal()
     }
 
     fun getContactName(number: String): Pair<String, String> {
