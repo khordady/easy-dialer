@@ -16,8 +16,8 @@ class SplashActivity : ComponentActivity() {
         if (
             !PermissionChecker.MakeCallPermission(this) ||
             !PermissionChecker.ReadPhoneSPermission(this) ||
-            !PermissionChecker.ReadCallGPermission(this) ||
-            !PermissionChecker.WriteCallGPermission(this) ||
+            !PermissionChecker.ReadCallLogPermission(this) ||
+            !PermissionChecker.WriteCallLogPermission(this) ||
             !PermissionChecker.WriteContactPermission(this) ||
             !PermissionChecker.ReadContactPermission(this)
         ) {
