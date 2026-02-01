@@ -1,28 +1,24 @@
 package app.arteh.easydialer.dial
 
+import android.annotation.SuppressLint
 import android.app.Application
+import android.content.Context
+import android.net.Uri
+import android.os.Bundle
+import android.telecom.TelecomManager
+import android.widget.Toast
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewModelScope
 import app.arteh.easydialer.contacts.ContactRP
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.launch
 
 class DialPadVM(application: Application, val contactRP: ContactRP) :
     AndroidViewModel(application) {
-
-    class Factory(
-        val application: Application,
-        val contactRP: ContactRP,
-    ) : ViewModelProvider.Factory {
-        @Suppress("UNCHECKED_CAST")
-        override fun <T : ViewModel> create(modelClass: Class<T>): T {
-            if (modelClass.isAssignableFrom(DialPadVM::class.java)) {
-                return DialPadVM(application, contactRP) as T
-            }
-            throw IllegalArgumentException("Unknown ViewModel class")
-        }
-    }
 
     private val _number = MutableStateFlow("")
     val number: StateFlow<String> = _number
@@ -35,14 +31,50 @@ class DialPadVM(application: Application, val contactRP: ContactRP) :
         _number.value = _number.value.dropLast(1)
     }
 
-    fun onCall() {
-        if (_number.value.isNotEmpty()) {
-            // emit event → system dialer
+    @SuppressLint("MissingPermission")
+    fun makeCall() {
+        val context = getApplication() as Context
+        val phoneNumber = _number.value
+
+        if (phoneNumber.isNotEmpty()) {
+            val telecomManager = context.getSystemService(Context.TELECOM_SERVICE) as TelecomManager
+
+            val uri = Uri.fromParts("tel", phoneNumber, null)
+
+            telecomManager.placeCall(uri, Bundle())
         }
     }
 
     fun onNumberLongPress(digit: String) {
-        // Quick call logic
-        // Example: show confirmation dialog
+        val context = getApplication() as Context
+
+        viewModelScope.launch {
+            val map = contactRP.speedDialMap.firstOrNull()
+            if (map != null) {
+                val phoneNumber = map[digit.toInt()]?.phoneNumber
+                if (phoneNumber != null) {
+                    _number.value = phoneNumber
+                    makeCall()
+                }
+                else
+                    Toast.makeText(
+                        context, "You have not set Speed Dial for this button yet." +
+                                "\nPlease select a contact from Contact Screen.", Toast.LENGTH_LONG
+                    ).show()
+            }
+        }
+    }
+
+    class Factory(
+        val application: Application,
+        val contactRP: ContactRP,
+    ) : ViewModelProvider.Factory {
+        @Suppress("UNCHECKED_CAST")
+        override fun <T : ViewModel> create(modelClass: Class<T>): T {
+            if (modelClass.isAssignableFrom(DialPadVM::class.java)) {
+                return DialPadVM(application, contactRP) as T
+            }
+            throw IllegalArgumentException("Unknown ViewModel class")
+        }
     }
 }

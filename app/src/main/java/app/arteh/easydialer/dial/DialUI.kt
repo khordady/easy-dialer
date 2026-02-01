@@ -59,7 +59,7 @@ fun DialPadScreen(viewModel: DialPadVM) {
             onNumberLongPress = viewModel::onNumberLongPress
         )
 
-        CallControls(onCall = viewModel::onCall)
+        CallControls(onCall = viewModel::makeCall)
     }
 }
 
@@ -78,7 +78,9 @@ fun DialedNumberDisplay(number: String, onBackspace: () -> Unit) {
             textAlign = TextAlign.Center
         )
         Icon(
-            modifier = Modifier.size(50.dp).noRippleClickable(onBackspace),
+            modifier = Modifier
+                .size(50.dp)
+                .noRippleClickable(onBackspace),
             painter = painterResource(R.drawable.backspace),
             contentDescription = "Call",
             tint = AppColor.GradYoda.resolve()
@@ -134,11 +136,10 @@ fun DialButton(
 }
 
 @Composable
-fun CallControls(
-    onCall: () -> Unit,
-) {
+fun CallControls(onCall: () -> Unit) {
     Box(
         modifier = Modifier
+            .padding(top = 10.dp)
             .size(80.dp)
             .background(AppColor.GradGreen.resolve(), CircleShape)
             .noRippleClickable(onCall),
