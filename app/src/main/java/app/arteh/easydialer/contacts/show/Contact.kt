@@ -6,7 +6,7 @@ data class Contact(
     val id: Long,
     val name: String,
     val phone: String,
-    val date: Long = 0,
+    val thumbUri: Uri?,
     val photoUri: Uri?,
     val key: Int
 )

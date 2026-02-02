@@ -117,7 +117,7 @@ class ClogRP(val context: Context) {
                         cursor.getString(cursor.getColumnIndex(CallLog.Calls.CACHED_NORMALIZED_NUMBER))
                     val number = cursor.getString(cursor.getColumnIndex(CallLog.Calls.NUMBER))
 
-                    val contact = contactRP.getContactName(cachedNumber)
+                    val contact = contactRP.getContactByNumber(cachedNumber)
                     val simdID =
                         getSimSlot(cursor.getString(cursor.getColumnIndex(CallLog.Calls.PHONE_ACCOUNT_ID)))
                     val date = cursor.getLong(cursor.getColumnIndex(CallLog.Calls.DATE))
