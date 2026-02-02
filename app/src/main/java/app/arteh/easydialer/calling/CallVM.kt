@@ -47,7 +47,11 @@ class CallVM(application: Application) : AndroidViewModel(application) {
                             startRingtone()
                         }
 
-                        Call.STATE_ACTIVE,
+                        Call.STATE_ACTIVE -> {
+                            _uiState.update { it.copy(state = CallState.Talking) }
+                            stopRingtone()
+                        }
+
                         Call.STATE_DISCONNECTED -> {
                             _uiState.update { it.copy(state = CallState.Rejected) }
                             stopRingtone()
@@ -79,7 +83,6 @@ class CallVM(application: Application) : AndroidViewModel(application) {
 
     fun answer() {
         call.answer(VideoProfile.STATE_AUDIO_ONLY)
-        speaker(true)
     }
 
     fun reject() {
@@ -90,16 +93,41 @@ class CallVM(application: Application) : AndroidViewModel(application) {
         call.disconnect()
     }
 
-    fun mute(enabled: Boolean) {
-        MyInCallService.instance?.setMuted(enabled)
+    fun toggleMute() {
+        val enable = uiState.value.isMute
+
+        MyInCallService.instance?.setMuted(!enable)
+        _uiState.update { it.copy(isMute = !enable) }
     }
 
-    fun speaker(enabled: Boolean) {
+    fun toggleSpeaker() {
+        val enable = uiState.value.isSpeaker
+
         MyInCallService.instance?.setAudioRoute(
-            if (enabled)
+            if (!enable)
                 CallAudioState.ROUTE_SPEAKER
             else
                 CallAudioState.ROUTE_EARPIECE
         )
+
+        _uiState.update { it.copy(isSpeaker = !enable) }
+    }
+
+    fun showDialPad() {
+        _uiState.update { it.copy(showDialPad = true) }
+    }
+
+    fun hideDialPad() {
+        _uiState.update { it.copy(showDialPad = false) }
+
+        stopDtmf()
+    }
+
+    fun sendDtmf(digit: String) {
+        call.playDtmfTone(digit.toCharArray()[0])
+    }
+
+    fun stopDtmf() {
+        call.stopDtmfTone()
     }
 }

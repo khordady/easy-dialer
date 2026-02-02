@@ -8,12 +8,13 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -140,8 +141,9 @@ fun CallControls(onCall: () -> Unit) {
     Box(
         modifier = Modifier
             .padding(top = 10.dp)
-            .size(80.dp)
-            .background(AppColor.GradGreen.resolve(), CircleShape)
+            .height(70.dp)
+            .width(150.dp)
+            .background(AppColor.GradGreen.resolve(), RoundedCornerShape(5.dp))
             .noRippleClickable(onCall),
         contentAlignment = Alignment.Center
     ) {

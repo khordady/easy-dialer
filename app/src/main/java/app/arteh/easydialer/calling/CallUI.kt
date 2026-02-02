@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -43,7 +44,9 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import app.arteh.easydialer.R
 import app.arteh.easydialer.calling.models.CallState
 import app.arteh.easydialer.contacts.show.Contact
+import app.arteh.easydialer.dial.DialPadGrid
 import app.arteh.easydialer.ui.noRippleClickable
+import app.arteh.easydialer.ui.theme.AppColor
 
 private val LocalVM = staticCompositionLocalOf<CallVM> {
     error("CallVM not provided")
@@ -63,15 +66,144 @@ fun CallContent() {
 
     val context = LocalContext.current
 
-    when (uiState.state) {
-        CallState.Incoming -> IncomingCallUI(uiState.phoneNumber, uiState.contact)
-        CallState.Calling -> {}
-        CallState.Rejected -> (context as Activity).finish()
+    Box {
+        when (uiState.state) {
+            CallState.Incoming -> IncomingCallUI(uiState.phoneNumber, uiState.contact)
+            CallState.Calling -> {}
+            CallState.Rejected -> (context as Activity).finish()
+            CallState.Talking -> TalkingUI(
+                uiState.phoneNumber,
+                uiState.contact,
+                uiState.isMute,
+                uiState.isSpeaker
+            )
+        }
+
+        if (uiState.showDialPad)
+            DialPadUI(callVM::sendDtmf, callVM::hideDialPad)
     }
 }
 
 @Composable
-fun IncomingCallUI(number: String, contact: Contact?) {
+private fun DialPadUI(onClick: (String) -> Unit, onBack: () -> Unit) {
+    Column {
+        DialPadGrid(onClick, {})
+
+        Row(
+            modifier = Modifier
+                .padding(top = 10.dp)
+                .height(70.dp)
+                .width(150.dp)
+                .background(AppColor.GradGreen.resolve(), RoundedCornerShape(5.dp))
+                .noRippleClickable(onBack),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                modifier = Modifier.size(35.dp),
+                painter = painterResource(R.drawable.back),
+                contentDescription = null,
+                tint = Color.White
+            )
+            Text(
+                text = "Return to call",
+                fontWeight = FontWeight.Bold,
+                color = Color.White,
+                fontSize = 18.sp
+            )
+        }
+    }
+}
+
+@Composable
+private fun TalkingUI(number: String, contact: Contact?, isMute: Boolean, isSpeaker: Boolean) {
+    val callVM = LocalVM.current
+    val context = LocalContext.current
+
+    var contactPic by remember { mutableStateOf<ImageBitmap?>(null) }
+
+    if (contact != null && contact.thumbUri != null)
+        LaunchedEffect(Unit) {
+            try {
+                val bitmap =
+                    MediaStore.Images.Media.getBitmap(context.contentResolver, contact.photoUri)
+                contactPic = bitmap.asImageBitmap()
+            } catch (e: Exception) {
+            }
+        }
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(40.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = contact?.name ?: "-",
+            fontSize = 32.sp,
+            fontWeight = FontWeight.ExtraBold,
+        )
+        Text(
+            text = number,
+            fontSize = 32.sp,
+            fontWeight = FontWeight.ExtraBold,
+        )
+
+        if (contactPic != null)
+            Image(
+                modifier = Modifier.size(150.dp),
+                bitmap = contactPic!!,
+                contentDescription = null
+            )
+
+        Row() {
+            BigCallButton(
+                text = "Mute", if (isMute) R.drawable.mic_on
+                else R.drawable.mic_off, Modifier
+                    .padding(10.dp)
+                    .weight(1f)
+                    .height(100.dp)
+                    .background(Color(0xFFFFFF3F), RoundedCornerShape(5.dp))
+                    .noRippleClickable(callVM::toggleMute)
+            )
+
+            BigCallButton(
+                text = "Mute", if (isSpeaker) R.drawable.speaker_off
+                else R.drawable.speaker_on, Modifier
+                    .padding(10.dp)
+                    .weight(1f)
+                    .height(100.dp)
+                    .background(Color(0xFF30A3FF), RoundedCornerShape(5.dp))
+                    .noRippleClickable(callVM::toggleSpeaker)
+            )
+        }
+
+        Row() {
+            BigCallButton(
+                text = "Mute", R.drawable.call_end,
+                Modifier
+                    .padding(10.dp)
+                    .weight(1f)
+                    .height(100.dp)
+                    .background(Color(0xFFFF2E2E), RoundedCornerShape(5.dp))
+                    .noRippleClickable(callVM::hangUp)
+            )
+
+            BigCallButton(
+                text = "Mute", if (isSpeaker) R.drawable.speaker_off
+                else R.drawable.speaker_on, Modifier
+                    .padding(10.dp)
+                    .weight(1f)
+                    .height(100.dp)
+                    .background(Color(0xFF9E67FF), RoundedCornerShape(5.dp))
+                    .noRippleClickable(callVM::showDialPad)
+            )
+        }
+    }
+}
+
+@Composable
+private fun IncomingCallUI(number: String, contact: Contact?) {
     val callVM = LocalVM.current
     val context = LocalContext.current
 
