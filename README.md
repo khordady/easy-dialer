@@ -112,7 +112,7 @@ Feel free to:
 ## 📥 Installation
 
 ```bash
-git clone https://github.com/khordady/easy-dialer.git
+git clone https://github.com/forootan-seresht/easy-dialer.git
 ```
 
 ## 📌 Notes
