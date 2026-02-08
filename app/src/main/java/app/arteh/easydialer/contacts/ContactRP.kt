@@ -2,10 +2,12 @@ package app.arteh.easydialer.contacts
 
 import android.content.Context
 import android.provider.ContactsContract
+import androidx.compose.ui.graphics.Color
 import androidx.core.net.toUri
 import app.arteh.easydialer.contacts.edit.models.ContactPhone
 import app.arteh.easydialer.contacts.edit.models.EditableContact
 import app.arteh.easydialer.contacts.show.Contact
+import app.arteh.easydialer.contacts.show.ContactHeader
 import app.arteh.easydialer.contacts.speed.PreferencesManager
 import app.arteh.easydialer.contacts.speed.SpeedDialEntry
 import kotlinx.coroutines.flow.Flow
@@ -21,7 +23,7 @@ class ContactRP(private val context: Context) {
         loadContacts()
     }
 
-    fun loadContacts() {
+    fun loadContacts(): Map<ContactHeader, List<Contact>> {
         contactMList = mutableListOf()
 
         val cr = context.contentResolver
@@ -85,6 +87,25 @@ class ContactRP(private val context: Context) {
                     count--
                 }
             j++
+        }
+
+        val mutableMap = mutableMapOf<Char, List<Contact>>()
+
+        return contactMList.sortedBy { it.name }.groupBy { contact ->
+            val firstChar = contact.name.firstOrNull()?.uppercaseChar() ?: '#'
+
+            // Logic to pick a color based on the character
+            val headerColor = when (firstChar.toInt() % 7) {
+                0 -> Color(0xFFFF76C3)
+                1 -> Color(0xFF9467FF)
+                2 -> Color(0xFF2492FF)
+                3 -> Color(0xFFD8226C)
+                5 -> Color(0xFFFF9B51)
+                6 -> Color(0xFF00B7B5)
+                else -> Color(0xFF5CB855)
+            }
+
+            ContactHeader(char = firstChar, color = headerColor)
         }
     }
 
